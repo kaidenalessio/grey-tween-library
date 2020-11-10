@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<script src="grey.js"></script>
+	<div id="box" style="position: fixed; background-color: blue; width: 100px; height: 100px"></div>
+	<script>
+		let object = {
+				x: 0,
+				y: 0
+			},
+			target = {
+				x: 100,
+				y: 100
+			},
+			durationInFrames = 120,
+			easingFunction = Grey.easeOutElastic,
+			delay = 10,
+			onComplete = () => {},
+			onProgress = () => {
+				box.style.top = `${object.y}px`;
+				box.style.left = `${object.x}px`;
+			};
+
+		Grey.tween(object, target, durationInFrames, easingFunction, delay, onComplete, onProgress)
+			.chain(object, { x: 140, y: 80 }, 60, Grey.easeOutSine, 0, null, onProgress);
+
+	</script>
+</body>
+</html>

@@ -1,38 +1,74 @@
-const Grey = {
-	lastDuration: 0,
-	chainedDuration: 0,
-	tween(object, properties, durationInFrames, easingFunction, delay=0, onComplete, onProgress, resetChain=true) {
-		if (!onComplete) onComplete = () => {};
-		if (!onProgress) onProgress = () => {};
-		let count = -delay-1, starts = {}, changes = {};
-		const _update = () => {
-			count++;
-			if (count === 0) {
-				for (const key in properties) {
-					starts[key] = object[key];
-					changes[key] = properties[key] - starts[key];
+var Grey = Grey || {};
+
+Grey.lastDuration = 0;
+
+Grey.chainedDuration = 0;
+
+Grey.tween = (object, targetProperties, durationInFrames, easingFunction, delay, onComplete, onProgress, resetChain) => {
+	if (delay === undefined) delay = 0;
+	if (typeof resetChain !== 'boolean') resetChain = true;
+	if (!onComplete) onComplete = () => {};
+	if (!onProgress) onProgress = () => {};
+
+	let count = -delay-1,
+		starts = {},
+		changes = {};
+
+	const _update = () => {
+		count++;
+
+		if (count === 0) {
+			for (const key in targetProperties) {
+				starts[key] = object[key];
+				changes[key] = targetProperties[key] - starts[key];
+			}
+		}
+
+		if (count < durationInFrames) {
+			window.requestAnimationFrame(_update);
+		}
+		else {
+			count = durationInFrames;
+		}
+
+		if (count >= 0) {
+			for (const key in targetProperties) {
+				if (changes[key]) {
+					object[key] = easingFunction(count/durationInFrames, starts[key], changes[key]);
 				}
 			}
-			count < durationInFrames? window.requestAnimationFrame(_update) : count = durationInFrames;
-			if (count >= 0) {
-				for (const key in properties) {
-					if (changes[key]) {
-						object[key] = easingFunction(count/durationInFrames, starts[key], changes[key]);
-					}
-				}
-			}
-			count < durationInFrames? onProgress() : onComplete();
-		};
-		_update();
-		Grey.lastDuration = durationInFrames;
-		if (resetChain) Grey.chainedDuration = 0;
-		return Grey;
-	},
-	chain(object, properties, durationInFrames, easingFunction, delay=0, onComplete, onProgress) {
-		Grey.chainedDuration += Grey.lastDuration;
-		Grey.tween(object, properties, durationInFrames, easingFunction, delay+Grey.chainedDuration, onComplete, onProgress, false);
-		return Grey;
-	}
+		}
+
+		if (count < durationInFrames) {
+			onProgress();
+		}
+		else {
+			onComplete();
+		}
+	};
+
+	_update();
+
+	Grey.lastDuration = durationInFrames;
+	if (resetChain) Grey.chainedDuration = 0;
+
+	return Grey;
+};
+
+Grey.chain = (object, targetProperties, durationInFrames, easingFunction, delay, onComplete, onProgress) => {
+	if (delay === undefined) delay = 0;
+	Grey.chainedDuration += Grey.lastDuration;
+	Grey.tween(
+		object,
+		targetProperties,
+		durationInFrames,
+		easingFunction,
+		delay + Grey.chainedDuration,
+		onComplete,
+		onProgress,
+		false
+	);
+	return Grey;
 };
 
 Grey.easeInQuad = (t, b, c) => c*t*t+b;

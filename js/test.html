@@ -4,18 +4,18 @@
 	<title></title>
 </head>
 <body>
-	<script src="grey.js"></script>
+	<script src="grey.min.js"></script>
 	<div id="box" style="position: fixed; background-color: blue; width: 100px; height: 100px"></div>
 	<script>
 		let object = {
 				x: 0,
 				y: 0
 			},
-			target = {
+			targetProperties = {
 				x: 100,
 				y: 100
 			},
-			durationInFrames = 120,
+			durationInFrames = 60,
 			easingFunction = Grey.easeOutElastic,
 			delay = 10,
 			onComplete = () => {},
@@ -24,8 +24,8 @@
 				box.style.left = `${object.x}px`;
 			};
 
-		Grey.tween(object, target, durationInFrames, easingFunction, delay, onComplete, onProgress)
-			.chain(object, { x: 140, y: 80 }, 60, Grey.easeOutSine, 0, null, onProgress);
+		Grey.tween(object, targetProperties, durationInFrames, easingFunction, delay, onComplete, onProgress)
+			.chain(object, { x: 400, y: 20 }, 30, Grey.easeInOutCirc, 0, null, onProgress);
 
 	</script>
 </body>
